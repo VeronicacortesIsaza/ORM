@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.orm import relationship
-from database.base import Base
+from database.connection import Base
 from entities.base import AuditMixin
 from pydantic import BaseModel, Field, validator
 from typing import Optional, List

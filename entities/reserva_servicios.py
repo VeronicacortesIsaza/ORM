@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
-from database.base import Base
+from database.connection import Base
 
 class Reserva_Servicios(Base):
     __tablename__ = 'reserva_servicios'

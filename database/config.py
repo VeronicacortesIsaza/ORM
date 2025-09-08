@@ -6,7 +6,6 @@ Configuraciones centralizadas para la conexión a la base de datos.
 """
 
 import os
-from typing import Optional
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
