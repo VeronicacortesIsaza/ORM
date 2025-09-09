@@ -22,11 +22,11 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 try:
     with engine.connect() as conn:
         result = conn.execute(text("SELECT @@VERSION"))
-        print("✅ Conectado a SQL Server")
+        print("Conectado a SQL Server")
         for row in result:
             print(row[0])
 except Exception as e:
-    print("❌ Error al conectar:", e)
+    print("Error al conectar:", e)
 
 def get_session():
     return SessionLocal()
