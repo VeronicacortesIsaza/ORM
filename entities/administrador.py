@@ -1,54 +1,50 @@
-from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import relationship
-from database.connection import Base
-from pydantic import BaseModel, Field, validator
-from typing import Optional, List
-from datetime import datetime
+from database.config import Base
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
+from pydantic import BaseModel, validator
+from typing import List, Optional
+from entities.usuario import Usuario
 
 class Administrador(Base):
-    __tablename__ = 'administrador'
+    __tablename__ = "administrador"
 
-    id_administrador = Column(Integer, primary_key=True)
-    id_usuario = Column(Integer, ForeignKey('usuario.id_usuario'))
-    
+    id_admin = Column(UUID(as_uuid=True), ForeignKey("usuario.id_usuario"), primary_key=True, default=uuid.uuid4)
+
     usuario = relationship("Usuario", back_populates="administrador")
 
+    def __repr__(self):
+        return f"<Administrador(id={self.id_admin})>"
+
 class AdministradorBase(BaseModel):
-    id_usuario: int = Field(..., gt=0, description="Numero de documento del administrador")
+    id_admin: uuid.UUID
 
-    @validator('id_usuario')
-    def id_usuario_positivo(cls, v):
-        if v is not None and v <= 0:
-            raise ValueError('El ID de usuario debe ser un número positivo')
+    @validator('id_admin')
+    def validar_tipo_usuario_administrador(cls, v, values, **kwargs):
+        if 'tipo_usuario' in values and values['tipo_usuario'] != 'administrador':
+            raise ValueError('El usuario asociado debe ser de tipo administrador')
         return v
 
-class AdministradorCreate(AdministradorBase):
-    pass
+class AdministradorResponse(BaseModel):
+    id_admin: uuid.UUID
+    nombre: str
+    apellidos: str
+    telefono: Optional[str] = None
+    fecha_creacion: str
 
-class AdministradorUpdate(BaseModel):
-    id_usuario: Optional[int] = Field(None, gt=0)
+    model_config = {
+        "from_attributes": True,
+        "arbitrary_types_allowed": True,
+        "json_encoders": {
+            uuid.UUID: str
+        }
+    }
 
-    @validator('id_usuario')
-    def id_usuario_positivo(cls, v):
-        if v is not None and v <= 0:
-            raise ValueError('El ID de usuario debe ser un número positivo')
-        return v
-
-class AdministradorResponse(AdministradorBase):
-    id_administrador: int
-    fecha_creacion: datetime
-    fecha_edicion: Optional[datetime] = None
+class AdministradorListResponse(BaseModel):
+    administradores: List[AdministradorResponse]
 
     class Config:
         orm_mode = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat()
-        }
-        
-class AdministradorListResponse(BaseModel):
-    """Esquema para lista de administradores"""
-    administradores: List[AdministradorResponse]
-    
-    class Config:
         from_attributes = True
 
