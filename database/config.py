@@ -43,6 +43,17 @@ engine = create_engine(
 
 # Crear la sesión
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+<<<<<<< HEAD
+=======
+try:
+    with engine.connect() as conn:
+        result = conn.execute(text("SELECT @@VERSION"))
+        print("Conectado a SQL Server")
+        for row in result:
+            print(row[0])
+except Exception as e:
+    print("Error al conectar:", e)
+>>>>>>> cd14a0e905a49f36b4bd7fc605a8bcc557e29026
 
 # Base para los modelos
 Base = declarative_base()
