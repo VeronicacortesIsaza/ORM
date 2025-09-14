@@ -1,12 +1,22 @@
-from sqlalchemy import create_engine, inspect
-from database.config import create_tables
+from database.config import engine
+from sqlalchemy import text
 
-# Crear tablas
-create_tables()
-print("[OK] Tablas creadas exitosamente")
+with engine.connect() as conn:
+    conn.execute(text("""
+        ALTER TABLE cliente 
+            DROP CONSTRAINT IF EXISTS cliente_id_cliente_fkey,
+            ADD CONSTRAINT cliente_id_cliente_fkey
+                FOREIGN KEY (id_cliente) REFERENCES usuario(id_usuario)
+                ON DELETE CASCADE;
+    """))
 
-# Verificar tablas existentes
-engine = create_engine("postgresql://neondb_owner:npg_HdMWb1wIsDO7@ep-mute-shadow-adr33azf-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
-inspector = inspect(engine)
-tablas = inspector.get_table_names()
-print("Tablas realmente en la BD:", tablas)
+    conn.execute(text("""
+        ALTER TABLE administrador
+            DROP CONSTRAINT IF EXISTS administrador_id_admin_fkey,
+            ADD CONSTRAINT administrador_id_admin_fkey
+                FOREIGN KEY (id_admin) REFERENCES usuario(id_usuario)
+                ON DELETE CASCADE;
+    """))
+    conn.commit()
+
+print("Relaciones actualizadas en Neon correctamente ✅")

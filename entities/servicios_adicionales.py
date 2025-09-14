@@ -17,7 +17,7 @@ class Servicios_Adicionales(Base):
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
 
-    reservas = relationship("Reserva_Servicios", back_populates="servicio")
+    reservas_servicios = relationship("Reserva_Servicios", back_populates="servicio")
     
 class Servicios_AdicionalesBase(BaseModel):
     nombre_servicio: str = Field(..., min_length=1, max_length=100)

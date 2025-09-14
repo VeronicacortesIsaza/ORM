@@ -12,7 +12,7 @@ class Reserva_Servicios(Base):
     id_servicio = Column(UUID(as_uuid=True), ForeignKey('servicios_adicionales.id_servicio'), primary_key=True)
 
     reserva = relationship("Reserva", back_populates="servicios")
-    servicio = relationship("Servicios_Adicionales", back_populates="reserva")
+    servicio = relationship("Servicios_Adicionales", back_populates="reservas_servicios")
     
 
     def __repr__(self):

@@ -5,6 +5,7 @@ from typing import Optional, List
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from datetime import datetime
+from sqlalchemy.orm import relationship
 
 class Usuario(Base):
     __tablename__ = "usuario"
@@ -18,6 +19,10 @@ class Usuario(Base):
     clave = Column(String(10), nullable=False)  
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
+    
+    administrador = relationship("Administrador", back_populates="usuario", uselist=False)
+
+    cliente = relationship("Cliente", back_populates="usuario", uselist=False)
 
     def __repr__(self):
         return f"<Usuario(id={self.id_usuario}, nombre_usuario={self.nombre_usuario})>"
