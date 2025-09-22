@@ -14,8 +14,6 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 # Importar los modelos para que Alembic los detecte
 from database.config import Base
-from entities.administrador import Administrador
-from entities.cliente import Cliente
 from entities.usuario import Usuario
 from entities.tipo_habitacion import Tipo_Habitacion
 from entities.habitacion import Habitacion
@@ -23,12 +21,9 @@ from entities.reserva import Reserva
 from entities.reserva_servicios import Reserva_Servicios
 from entities.servicios_adicionales import Servicios_Adicionales
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+
 config = context.config
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 

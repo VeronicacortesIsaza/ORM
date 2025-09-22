@@ -1,6 +1,4 @@
 from .usuario import Usuario
-from .administrador import Administrador
-from .cliente import Cliente
 from .tipo_habitacion import Tipo_Habitacion
 from .habitacion import Habitacion
 from .reserva import Reserva

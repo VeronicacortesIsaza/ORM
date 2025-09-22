@@ -1,8 +1,8 @@
-"""init
+"""create tables
 
-Revision ID: 9db60ea1fbc0
+Revision ID: 0832f30327b7
 Revises: 
-Create Date: 2025-09-13 20:40:57.336896
+Create Date: 2025-09-21 22:57:12.351332
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '9db60ea1fbc0'
+revision = '0832f30327b7'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -31,20 +31,11 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id_usuario'),
     sa.UniqueConstraint('nombre_usuario')
     )
-    op.create_table('administrador',
-    sa.Column('id_admin', sa.UUID(), nullable=False),
-    sa.ForeignKeyConstraint(['id_admin'], ['usuario.id_usuario'], ),
-    sa.PrimaryKeyConstraint('id_admin')
-    )
-    op.create_table('cliente',
-    sa.Column('id_cliente', sa.UUID(), nullable=False),
-    sa.ForeignKeyConstraint(['id_cliente'], ['usuario.id_usuario'], ),
-    sa.PrimaryKeyConstraint('id_cliente')
-    )
     op.create_table('servicios_adicionales',
     sa.Column('id_servicio', sa.UUID(), nullable=False),
-    sa.Column('nombre_servicio', sa.String(), nullable=True),
-    sa.Column('precio', sa.Float(), nullable=True),
+    sa.Column('nombre_servicio', sa.String(), nullable=False),
+    sa.Column('precio', sa.Float(), nullable=False),
+    sa.Column('descripcion', sa.String(), nullable=False),
     sa.Column('id_usuario_crea', sa.UUID(), nullable=False),
     sa.Column('id_usuario_edita', sa.UUID(), nullable=True),
     sa.Column('fecha_creacion', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
@@ -67,7 +58,7 @@ def upgrade() -> None:
     )
     op.create_table('habitacion',
     sa.Column('id_habitacion', sa.UUID(), nullable=False),
-    sa.Column('numero', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('numero', sa.Integer(), nullable=False),
     sa.Column('id_tipo', sa.UUID(), nullable=False),
     sa.Column('tipo', sa.String(length=20), nullable=False),
     sa.Column('precio', sa.Float(), nullable=False),
@@ -84,7 +75,7 @@ def upgrade() -> None:
     )
     op.create_table('reserva',
     sa.Column('id_reserva', sa.UUID(), nullable=False),
-    sa.Column('id_cliente', sa.UUID(), nullable=True),
+    sa.Column('id_usuario', sa.UUID(), nullable=False),
     sa.Column('id_habitacion', sa.UUID(), nullable=True),
     sa.Column('fecha_entrada', sa.Date(), nullable=True),
     sa.Column('fecha_salida', sa.Date(), nullable=True),
@@ -96,8 +87,8 @@ def upgrade() -> None:
     sa.Column('id_usuario_edita', sa.UUID(), nullable=True),
     sa.Column('fecha_creacion', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('fecha_edicion', sa.DateTime(timezone=True), nullable=True),
-    sa.ForeignKeyConstraint(['id_cliente'], ['cliente.id_cliente'], ),
     sa.ForeignKeyConstraint(['id_habitacion'], ['habitacion.id_habitacion'], ),
+    sa.ForeignKeyConstraint(['id_usuario'], ['usuario.id_usuario'], ),
     sa.ForeignKeyConstraint(['id_usuario_crea'], ['usuario.id_usuario'], ),
     sa.ForeignKeyConstraint(['id_usuario_edita'], ['usuario.id_usuario'], ),
     sa.PrimaryKeyConstraint('id_reserva')
@@ -119,8 +110,6 @@ def downgrade() -> None:
     op.drop_table('habitacion')
     op.drop_table('tipo_habitacion')
     op.drop_table('servicios_adicionales')
-    op.drop_table('cliente')
-    op.drop_table('administrador')
     op.drop_table('usuario')
     # ### end Alembic commands ###
 
