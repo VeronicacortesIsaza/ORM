@@ -2,6 +2,8 @@ from login import login
 from database.config import SessionLocal
 from entities.habitacion import Habitacion
 from entities.reserva import Reserva
+from entities.reserva_servicios import Reserva_Servicios
+from entities.servicios_adicionales import Servicios_Adicionales
 
 def menu():
     session = SessionLocal()
@@ -40,8 +42,8 @@ def menu():
         session.close()
 from datetime import date, timedelta
 
-def reservar_habitacion(session, cliente_actual):
-    if not cliente_actual:
+def reservar_habitacion(session, sesion_actual):
+    if not sesion_actual:
         print("Debes iniciar sesión como cliente para reservar.")
         return
 
@@ -90,22 +92,33 @@ def reservar_habitacion(session, cliente_actual):
         return
 
     reserva = Reserva(
-        id_cliente=cliente_actual.id_cliente,
+        id_cliente=sesion_actual.id_cliente,
         id_habitacion=habitacion.id_habitacion,
         fecha_entrada=fecha_entrada,
         fecha_salida=fecha_salida,
         estado_reserva="Activa",
         noches=noches,
         costo_total=total,
-        id_usuario_crea=cliente_actual.id_cliente,
+        id_usuario_crea=sesion_actual.id_cliente,
         fecha_creacion=fecha_creacion
     )
 
     habitacion.disponible = False
     session.add(reserva)
     session.commit()
+    
+    print("¿Deseas servicios adicionales? (Si/No)")
+    sele = input().strip().lower()  
 
-    print(f"\nReserva creada para {cliente_actual.usuario.nombre} {cliente_actual.usuario.apellidos}")
+    if sele in {"si", "s"}:
+        reservar_servicios(session, sesion_actual)
+    elif sele in {"no", "n"}:
+        print("No se agregarán servicios adicionales.")
+    else:
+        print("Respuesta inválida. Debes ingresar 'Si' o 'No'.")
+
+
+    print(f"\nReserva creada para {sesion_actual.usuario.nombre} {sesion_actual.usuario.apellidos}")
     print(f"Habitación {habitacion.numero} - Total: ${total:,}")
     print(f"Del {fecha_entrada} al {fecha_salida}")
 
@@ -127,6 +140,50 @@ def mostrar_reservas(session):
         return
     for r in reservas:
         print(f"{r.cliente} - {r.documento} - {r.habitacion.tipo} - {r.noches} noches")
+    
+def reservar_servicios(session, cliente_actual):
+    if not cliente_actual:
+        print("Debes iniciar sesión para reservar servicios.")
+        return
+
+    reservas = session.query(Reserva).filter_by(id_cliente=cliente_actual.id_cliente).all()
+    if not reservas:
+        print("No tienes reservas activas.")
+        return
+
+    print("\nTus reservas activas:")
+    for i, r in enumerate(reservas, start=1):
+        print(f"{i}. Habitación {r.habitacion.numero} del {r.fecha_entrada} al {r.fecha_salida}")
+
+    idx = int(input("Selecciona la reserva a la que agregar servicios: ")) - 1
+    reserva_seleccionada = reservas[idx]
+
+    # Mostrar servicios disponibles
+    servicios = session.query(Servicios_Adicionales).all()
+    print("\nServicios disponibles:")
+    for i, s in enumerate(servicios, start=1):
+        print(f"{i}. {s.nombre} - ${s.precio}")
+
+    seleccion = input("Selecciona los servicios separados por coma (ej: 1,3): ")
+    seleccion_indices = [int(x.strip())-1 for x in seleccion.split(",")]
+
+    for i in seleccion_indices:
+        servicio = servicios[i]
+        cantidad = int(input(f"Ingrese la cantidad para {servicio.nombre}: "))
+        subtotal = servicio.precio * cantidad
+
+        reserva_servicio = Reserva_Servicios(
+            id_reserva=reserva_seleccionada.id_reserva,
+            id_servicio=servicio.id_servicio,
+            cantidad=cantidad,
+            subtotal=subtotal
+        )
+        session.add(reserva_servicio)
+        reserva_seleccionada.costo_total += subtotal
+
+    session.commit()
+    print("Servicios agregados correctamente a tu reserva.")
+
 
 if __name__ == "__main__":
     if login():
